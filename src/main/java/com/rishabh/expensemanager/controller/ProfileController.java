@@ -63,5 +63,30 @@ public class ProfileController {
 			
 	}
 	
+	@GetMapping("/profile")
+	public ResponseEntity<ProfileDTO> getPublicProfile(){
+		
+		System.out.println("inside profile");
+		
+		ProfileDTO profileDTO= profileService.getPublicProfile(null);
+		System.out.println(profileDTO.toString());
+		return ResponseEntity.ok(profileDTO);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 }
