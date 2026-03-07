@@ -47,7 +47,4 @@ public class CategoryController {
 		CategoryDTO updatedCategory = categoryService.updateCategory(categoryId, categoryDTO);
 		return ResponseEntity.status(HttpStatus.CREATED).body(updatedCategory);
 	}
-	
-	
-
 }

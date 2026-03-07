@@ -18,8 +18,9 @@ public class CategoryService {
 	private ProfileService profileService;
 	@Autowired
 	private CategoryRepository categoryRepository;
-	
-	public CategoryDTO saveCategory(CategoryDTO categoryDTO) {
+
+
+    public CategoryDTO saveCategory(CategoryDTO categoryDTO) {
 		ProfileEntity profile = profileService.getCurrentProfile();
 		
 		if(categoryRepository.existsByNameAndProfileId(categoryDTO.getName(), profile.getId())) {

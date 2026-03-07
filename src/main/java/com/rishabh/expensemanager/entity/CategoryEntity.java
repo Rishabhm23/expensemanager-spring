@@ -58,7 +58,6 @@ public class CategoryEntity {
 		super();
 	}
 
-
 	public Long getId() {
 		return id;
 	}

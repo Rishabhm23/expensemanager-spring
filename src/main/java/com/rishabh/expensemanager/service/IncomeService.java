@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,9 @@ public class IncomeService {
 	private IncomeRepository incomeRepository;
 	@Autowired
 	private ProfileService profileService;
-	
+    private final String CACHE_INCOME = "income";
+
+    @CacheEvict(value = CACHE_INCOME, allEntries = true)
 	public IncomeDTO addIncome(IncomeDTO dto) {
 		ProfileEntity profile = profileService.getCurrentProfile();
 		CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
@@ -38,19 +42,22 @@ public class IncomeService {
 		return toDTO(newIncome);
 		
 	}
-	
+
+    @Cacheable(value = CACHE_INCOME, key = "'income_' + #root.target.getCurrentProfileId()")
 	public List<IncomeDTO> getcurrentMonthIncomeForCurrentUser(){
-		ProfileEntity profile = profileService.getCurrentProfile();
+
+        ProfileEntity profile = profileService.getCurrentProfile();
 		
 		LocalDate now = LocalDate.now();
-		LocalDate startdate = now.withDayOfMonth(1);
-		LocalDate enddate = now.withDayOfMonth(now.lengthOfMonth());
+		LocalDate startDate = now.withDayOfMonth(1);
+		LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
 		
-		List<IncomeEntity> incomeList = incomeRepository.findByProfileIdAndDateBetween(profile.getId(), startdate, enddate);
+		List<IncomeEntity> incomeList = incomeRepository.findByProfileIdAndDateBetween(profile.getId(), startDate, endDate);
 		return incomeList.stream().map(this::toDTO).toList();
 		
 	}
-	
+
+    @CacheEvict(value = CACHE_INCOME, allEntries = true)
 	public void deleteIncome(Long incomeId){
 		ProfileEntity profile = profileService.getCurrentProfile();
 		
@@ -63,13 +70,12 @@ public class IncomeService {
 		incomeRepository.delete(entity);
 		
 	}
-	
-	
+
 	public List<IncomeDTO> getLatest5IncomesForCurrentUser() {
 		
 		ProfileEntity profile = profileService.getCurrentProfile();
-		List<IncomeEntity> expenseList = incomeRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
-		return expenseList.stream().map(this::toDTO).toList();
+		List<IncomeEntity> incomeList = incomeRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+		return incomeList.stream().map(this::toDTO).toList();
 		
 	}
 	
@@ -88,7 +94,7 @@ public class IncomeService {
 		return incomeList.stream().map(this::toDTO).toList();
 		
 	}
-	
+
 	private IncomeEntity toEntity(IncomeDTO dto, ProfileEntity profile, CategoryEntity category) {
 		
 		IncomeEntity newEntity = new IncomeEntity();
@@ -121,5 +127,8 @@ public class IncomeService {
 	
 	}
 
+    public Long getCurrentProfileId() {
+        return profileService.getCurrentProfile().getId();
+    }
 
 }

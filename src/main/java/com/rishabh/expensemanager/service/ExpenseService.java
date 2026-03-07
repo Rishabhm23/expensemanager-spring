@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +26,10 @@ public class ExpenseService {
 	private ExpenseRepository expenseRepository;
 	@Autowired
 	private ProfileService profileService;
-	
-	
+
+    private final String CACHE_EXPENSE = "expense";
+
+    @CacheEvict(value = CACHE_EXPENSE, allEntries = true)
 	public ExpenseDTO addExpense(ExpenseDTO dto) {
 		ProfileEntity profile = profileService.getCurrentProfile();
 		CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
@@ -36,8 +40,9 @@ public class ExpenseService {
 		return toDTO(newExpense);
 		
 	}
-	
-	public List<ExpenseDTO> getcurrentMonthExpenseForCurrentUser(){
+
+    @Cacheable(value = CACHE_EXPENSE, key = "'expense_' + #root.target.getCurrentProfileId()")
+    public List<ExpenseDTO> getcurrentMonthExpenseForCurrentUser(){
 		ProfileEntity profile = profileService.getCurrentProfile();
 		
 		LocalDate now = LocalDate.now();
@@ -48,8 +53,8 @@ public class ExpenseService {
 		return expenseList.stream().map(this::toDTO).toList();
 		
 	}
-	
-	
+
+    @CacheEvict(value = CACHE_EXPENSE, allEntries = true)
 	public void deleteExpense(Long expenseId){
 		ProfileEntity profile = profileService.getCurrentProfile();
 		
@@ -86,8 +91,7 @@ public class ExpenseService {
 		return expenseList.stream().map(this::toDTO).toList();
 		
 	}
-	
-	
+
 	public List<ExpenseDTO> getExpensesForUserOnDate(Long profileId, LocalDate date){
 		
 		
@@ -95,8 +99,7 @@ public class ExpenseService {
 		return expenseList.stream().map(this::toDTO).toList();
 		
 	}
-	
-	
+
 	private ExpenseEntity toEntity(ExpenseDTO dto, ProfileEntity profile, CategoryEntity category) {
 		
 		ExpenseEntity newEntity = new ExpenseEntity();
@@ -129,4 +132,7 @@ public class ExpenseService {
 	
 	}
 
+    public Long getCurrentProfileId() {
+        return profileService.getCurrentProfile().getId();
+    }
 }

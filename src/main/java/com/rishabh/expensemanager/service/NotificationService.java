@@ -28,7 +28,7 @@ public class NotificationService {
 	
 	private String frontendurl = "fghjkl";
 	
-	@Scheduled(cron = "0 0 22 * * *", zone = "IST")
+	
 	public void sendDailyIncomeExpenseReminder() {
 		
 		log.info("Job started: sendDailyIncomeExpenseReminder()");
@@ -42,7 +42,7 @@ public class NotificationService {
 		
 	}
 	
-	@Scheduled(cron = "0 0 22 * * *", zone = "IST")
+	
 	public void sendDailyExpenseSummary() {
 		
 		log.info("Job started: sendDailyExpenseSummary()");

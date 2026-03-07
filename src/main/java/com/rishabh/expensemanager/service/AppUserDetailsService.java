@@ -31,9 +31,4 @@ public class AppUserDetailsService implements UserDetailsService {
 				.authorities(Collections.emptyList())
 				.build();
 	}
-	
-	
-	
-	
-
 }

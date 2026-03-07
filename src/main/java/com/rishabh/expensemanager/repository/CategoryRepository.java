@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.rishabh.expensemanager.entity.CategoryEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>{
 	
@@ -13,5 +14,9 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>{
 	Optional<CategoryEntity> findByIdAndProfileId(Long id, Long ProfileId);
 	List<CategoryEntity> findByTypeAndProfileId(String type, Long profileId);
 	Boolean existsByNameAndProfileId(String name, Long profileId);
+
+
+
+
 
 }
