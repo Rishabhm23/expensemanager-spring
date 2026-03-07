@@ -3,9 +3,12 @@ package com.rishabh.expensemanager.service;
 import java.io.IOException;
 
 //import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.mail.SimpleMailMessage;
 //import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.sendgrid.helpers.mail.Mail;
@@ -25,8 +28,8 @@ import com.sendgrid.*;
 @Service
 public class EmailService {
 	
-	//@Autowired
-	//private JavaMailSender mailSender;
+	@Autowired
+	private JavaMailSender mailSender;
 	
 	@Value("${sendgrid.api.key}")
     private String sendGridApiKey;
@@ -35,25 +38,42 @@ public class EmailService {
     private String defaultFrom;
 	
 	
-	public void sendEmail(String to, String subject, String text) {
+	public void sendEmail1(String to, String subject, String text) {
 		try {
 			System.out.println("inside email service");
 			sendEmailInternal(to, subject, text, "text/plain");
-			/*
 	        SimpleMailMessage message = new SimpleMailMessage();
 	        message.setFrom("rishabhm4343@gmail.com"); // optional
 	        message.setTo(to);
 	        message.setSubject(subject);
 	        message.setText(text);
-	        mailSender.send(message);*/
+	        mailSender.send(message);
 		}catch (Exception e) {
 			//throw new RuntimeException(e.getMessage());
 			 e.printStackTrace();
 			 throw new RuntimeException("Email sending failed: " + e.getMessage(), e);
 		}
     }
-	
-	private void sendEmailInternal(String to, String subject, String body, String type) {
+
+
+    public void sendEmail(String to, String subject, String text) {
+        try {
+            System.out.println("inside email service");
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("rishabhm4343@gmail.com");
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            mailSender.send(message);
+        }catch (Exception e) {
+            //throw new RuntimeException(e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Email sending failed: " + e.getMessage(), e);
+        }
+    }
+
+
+    private void sendEmailInternal(String to, String subject, String body, String type) {
         try {
         	
         	System.out.println("inside internal service");
@@ -61,9 +81,6 @@ public class EmailService {
             Email fromEmail = new Email(defaultFrom.isEmpty() ? "rishabhm4343@gmail.com" : defaultFrom);
             Email toEmail = new Email(to);
             Content content = new Content(type, body);
-            
-            
-
             Mail mail = new Mail();
             mail.setFrom(fromEmail);
             mail.setSubject(subject);

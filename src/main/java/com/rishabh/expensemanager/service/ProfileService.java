@@ -43,7 +43,12 @@ public class ProfileService {
 		
 		ProfileEntity newProfile = toEntity(profileDTO);
 		newProfile.setActivationToken(UUID.randomUUID().toString());
+        if(profileRepository.existsByEmail(profileDTO.getEmail())) {
+            throw new RuntimeException("Email already registered");
+        }
 		newProfile = profileRepository.save(newProfile);
+
+
 		String activationLink = activationURL+"/api/v1.0/activate?token="+newProfile.getActivationToken();
 		String subject = "Activate your money Manager Account";
 		String body = "Click on the following link to activate your account: " + activationLink;

@@ -21,13 +21,28 @@ public class ProfileController {
 	@Autowired
 	private ProfileService profileService;
 	
-	@PostMapping("/register")
-	public ResponseEntity<ProfileDTO> registerProfile(@RequestBody ProfileDTO profileDTO){
+
+	public ResponseEntity<ProfileDTO> registerProfile1(@RequestBody ProfileDTO profileDTO){
 		System.out.println("Hi in register");
 		System.out.println(profileDTO.toString());
 		ProfileDTO registeredProfile = profileService.registeredProfile(profileDTO);
 		return ResponseEntity.status(HttpStatus.CREATED).body(registeredProfile);
 	}
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerProfile(@RequestBody ProfileDTO profileDTO){
+
+        try {
+            System.out.println("Hi in register");
+            System.out.println(profileDTO.toString());
+            ProfileDTO registeredProfile = profileService.registeredProfile(profileDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(registeredProfile);
+
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ex.getMessage());
+        }
+    }
 	
 	@GetMapping("/activate")
 	public ResponseEntity<String> activateProfile(@RequestParam String token){
