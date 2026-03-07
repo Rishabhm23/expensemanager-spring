@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-
 public class ExpensemanagerApplication {
 
 	public static void main(String[] args) {
