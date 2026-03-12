@@ -55,7 +55,6 @@ public class EmailService {
 		}
     }
 
-
     public void sendEmail(String to, String subject, String text) {
         try {
             System.out.println("inside email service");
@@ -71,7 +70,6 @@ public class EmailService {
             throw new RuntimeException("Email sending failed: " + e.getMessage(), e);
         }
     }
-
 
     private void sendEmailInternal(String to, String subject, String body, String type) {
         try {
