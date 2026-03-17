@@ -107,7 +107,7 @@ public class ProfileController {
                     .secure(true)
                     .path("/")
                     .maxAge(60 * 60) // 1 hour
-                    .sameSite("Strict")
+                    .sameSite("None")
                     .build();
 
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
