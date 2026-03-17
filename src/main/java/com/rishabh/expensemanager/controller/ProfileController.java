@@ -2,8 +2,11 @@ package com.rishabh.expensemanager.controller;
 
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,7 +59,7 @@ public class ProfileController {
 		
 	}
 	
-	@PostMapping("login")
+	@PostMapping("login1")
 	public ResponseEntity<Map<String, Object>> login(@RequestBody AuthDTO authDTO){
 		
 		try {
@@ -68,7 +71,8 @@ public class ProfileController {
 			}
 			Map<String, Object> response = profileService.authenticatAndGenerateToken(authDTO);
 			return ResponseEntity.ok(response);
-		}catch (Exception e) {
+		}
+        catch (Exception e) {
 			
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
 					"message" ,e.getMessage()
@@ -77,7 +81,49 @@ public class ProfileController {
 		}
 			
 	}
-	
+
+    @PostMapping("login")
+    public ResponseEntity<Map<String, Object>> login(
+            @RequestBody AuthDTO authDTO,
+            HttpServletResponse response) {
+
+        try {
+            if (!profileService.isAccountActive(authDTO.getEmail())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                        "message", "Account is not active. Please activate your account"
+                ));
+            }
+
+            Map<String, Object> authResponse = profileService.authenticatAndGenerateToken(authDTO);
+            String token = (String) authResponse.get("token");
+
+            if (token == null) {
+                throw new RuntimeException("Token generation failed");
+            }
+
+            // Create HttpOnly cookie
+            ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(60 * 60) // 1 hour
+                    .sameSite("Strict")
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+            // Remove token from response body
+            authResponse.remove("token");
+
+            return ResponseEntity.ok(authResponse);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
 	@GetMapping("/profile")
 	public ResponseEntity<ProfileDTO> getPublicProfile(){
 		

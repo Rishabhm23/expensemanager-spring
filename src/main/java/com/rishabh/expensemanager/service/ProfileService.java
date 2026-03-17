@@ -1,5 +1,6 @@
 package com.rishabh.expensemanager.service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -133,13 +134,14 @@ public class ProfileService {
 
 	public Map<String, Object> authenticatAndGenerateToken(AuthDTO authDTO) throws Exception {
 		try {
-			
+
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDTO.getEmail(),authDTO.getPassword()));
 			String token = jwtUtil.generateToken(authDTO.getEmail());
-			return Map.of(
-					"token",token,
-					"user", getPublicProfile(authDTO.getEmail()));
-				
+            Map<String, Object> map = new HashMap<>();
+            map.put("token", token);
+            map.put("email", getPublicProfile(authDTO.getEmail()));
+            return map;
+
 		}catch (Exception e){
 			throw new Exception("insert email or password");
 		}

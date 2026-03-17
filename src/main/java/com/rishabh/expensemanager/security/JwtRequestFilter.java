@@ -2,6 +2,7 @@ package com.rishabh.expensemanager.security;
 
 import java.io.IOException;
 
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,12 +29,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		final String authHeader = request.getHeader("Authorization");
+		//final String authHeader = request.getHeader("Authorization");
+        final String authHeader = getJwtFromCookies(request);
+        System.out.println("authHeader: " + authHeader);
 		String email = null;
 		String jwt = null;
 		
-		if(authHeader != null && authHeader.startsWith("Bearer ")) {
-			jwt = authHeader.substring(7);
+		if(authHeader != null ) {
+			jwt = authHeader;
 			email = jwtUtil.extractUsername(jwt);
 		}
 		
@@ -48,7 +51,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 		filterChain.doFilter(request, response);
 	}
-	
-	
 
+
+    private String getJwtFromCookies(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+
+        for (Cookie cookie : request.getCookies()) {
+            if ("jwt".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
 }
+
+

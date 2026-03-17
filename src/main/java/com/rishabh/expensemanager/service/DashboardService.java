@@ -58,8 +58,7 @@ public class DashboardService {
 				
 		
 	}
-	
-	
+
 	private RecentTransactionDTO toRecentTransactionDTO(IncomeDTO income, ProfileEntity profile, String type) {
 		
 		RecentTransactionDTO recentTransactionDTO = new RecentTransactionDTO();

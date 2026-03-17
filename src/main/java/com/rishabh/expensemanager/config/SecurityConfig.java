@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -30,56 +31,42 @@ public class SecurityConfig {
 	private AppUserDetailsService appUserDetailsService;
 	@Autowired
 	private JwtRequestFilter jwtRequestFilter;
-	@Bean
-	public SecurityFilterChain securityFilterChild(HttpSecurity httpSecurity) throws Exception {
-		
-		
-		httpSecurity
-	    .cors(Customizer.withDefaults()) // enable CORS with default settings
-	    .csrf(AbstractHttpConfigurer::disable) // disable CSRF
-	    .authorizeHttpRequests(auth -> auth
-	        .requestMatchers("/status", "/health", "/register", "/activate", "/login")
-	        .permitAll()
-	        .anyRequest()
-	        .authenticated()
-	        )
-	        .sessionManagement(session -> session
-	                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-	        .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-	        
-	
-	
-	return httpSecurity.build();
-		
-	}
-	
+    @Bean
+    public SecurityFilterChain securityFilterChild(HttpSecurity httpSecurity) throws Exception {
+
+        httpSecurity
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 🔥 critical
+                        .requestMatchers("/status", "/health", "/register", "/activate", "/login")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated()
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return httpSecurity.build();
+    }
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
-    /*
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		
-		configuration.setAllowedOriginPatterns(List.of("*"));
-		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("Authorization", "Content-type", "Accept"));
-		configuration.setAllowCredentials(true);
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-		
-	}*/
 
     @Bean public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of( "https://wonderful-pastelito-622ee2.netlify.app" ));
+        configuration.setAllowedOriginPatterns(List.of( "https://wonderful-pastelito-622ee2.netlify.app", "http://localhost:5173" ));
         configuration.setAllowedMethods(List.of( "GET", "POST", "PUT", "DELETE", "OPTIONS" ));
-        configuration.setAllowedHeaders(List.of("*")); configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 
