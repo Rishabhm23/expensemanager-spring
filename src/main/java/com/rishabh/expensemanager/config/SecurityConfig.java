@@ -59,7 +59,7 @@ public class SecurityConfig {
 
     @Bean public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of( "https://wonderful-pastelito-622ee2.netlify.app", "http://localhost:5173" ));
+        configuration.setAllowedOrigins(List.of( "https://wonderful-pastelito-622ee2.netlify.app"));
         configuration.setAllowedMethods(List.of( "GET", "POST", "PUT", "DELETE", "OPTIONS" ));
         configuration.setAllowedHeaders(List.of("Content-Type", "Authorization"));
         configuration.setAllowCredentials(true);
